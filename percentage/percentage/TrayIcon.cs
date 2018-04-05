@@ -15,6 +15,8 @@ namespace percentage
         private const int iconFontSizeFull = 7;
         private const FontStyle iconFontStyle = FontStyle.Bold;
 
+        private const int updateFrequency = 5000; // in miliseconds
+
         private string batteryPercentage;
         private NotifyIcon notifyIcon;
         private MenuItem descriptionMenuItem;
@@ -46,7 +48,7 @@ namespace percentage
 
             Timer timer = new Timer();
             timer.Tick += new EventHandler(timer_Tick);
-            timer.Interval = 1000; // in miliseconds
+            timer.Interval = updateFrequency;
             timer.Start();
         }
 
