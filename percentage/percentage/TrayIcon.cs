@@ -11,7 +11,9 @@ namespace percentage
         static extern bool DestroyIcon(IntPtr handle);
 
         private const string iconFont = "Segoe UI";
-        private const int iconFontSize = 14;
+        private const int iconFontSize = 10;
+        private const int iconFontSizeFull = 7;
+        private const FontStyle iconFontStyle = FontStyle.Bold;
 
         private string batteryPercentage;
         private NotifyIcon notifyIcon;
@@ -76,7 +78,17 @@ namespace percentage
                 }
             }
 
-            using (Bitmap bitmap = new Bitmap(DrawText(batteryPercentage, new Font(iconFont, iconFontSize), fontColor, Color.Black)))
+            Font font;
+            if (batteryPercentage.Length > 2)
+            {
+                font = new Font(iconFont, iconFontSizeFull, iconFontStyle);
+            }
+            else
+            {
+                font = new Font(iconFont, iconFontSize, iconFontStyle);
+            }
+                
+            using (Bitmap bitmap = new Bitmap(DrawText(batteryPercentage, font, fontColor, Color.Transparent)))
             {
                 System.IntPtr intPtr = bitmap.GetHicon();
                 try
@@ -138,8 +150,8 @@ namespace percentage
 
         private Image DrawText(String text, Font font, Color textColor, Color backColor)
         {
-            var textSize = GetImageSize(text, font);
-            Image image = new Bitmap((int) textSize.Width, (int) textSize.Height);
+            var iconSize = SystemInformation.SmallIconSize;
+            Image image = new Bitmap((int) iconSize.Width, (int) iconSize.Height);
             using (Graphics graphics = Graphics.FromImage(image))
             {
                 // paint the background
@@ -148,20 +160,17 @@ namespace percentage
                 // create a brush for the text
                 using (Brush textBrush = new SolidBrush(textColor))
                 {
-                    graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-                    graphics.DrawString(text, font, textBrush, 0, 0);
+                    StringFormat stringFormat = new StringFormat();
+                    stringFormat.LineAlignment = StringAlignment.Center;
+                    stringFormat.Alignment = StringAlignment.Center;
+
+                    graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                    graphics.DrawString(text, font, textBrush, iconSize.Width / 2, iconSize.Height / 2, stringFormat);
                     graphics.Save();
                 }
             }
 
             return image;
-        }
-
-        private static SizeF GetImageSize(string text, Font font)
-        {
-            using (Image image = new Bitmap(1, 1))
-            using (Graphics graphics = Graphics.FromImage(image))
-                return graphics.MeasureString(text, font);
         }
     }
 }
